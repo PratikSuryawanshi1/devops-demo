@@ -1,0 +1,74 @@
+docker build -t devops_demo .
+Minikube
+kubectl
+
+
+
+* cmd
+-----
+1. docker build -t devopsdemo:latest .   (update code and build it again)
+2. docker stop devopsdemo-dev
+3. docker rm devopsdemo-dev
+
+4. docker run --name devopsdemo-dev -p 3000:3000 -p 9229:9229 -d devopsdemo:latest
+5. docker logs devopsdemo-dev
+6. docker tag myapp:latest myContainerRegistry.azurecr.io/myapp:latest
+7. docker push myContainerRegistry.azurecr.io/myapp:latest
+
+
+* Kubernet (for more info https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/#install-kubectl-binary-with-curl-on-windows)
+-----------
+1. Check that kubectl is properly configured by getting the cluster state:
+    kubectl cluster-info
+2. To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'
+
+
+
+* local kubernetes *
+1. Set Docker Environment to Minikube
+& minikube -p minikube docker-env --shell=powershell | Invoke-Expression
+2. Build the Docker Image
+docker build -t devopsdemo:latest .
+3. Update Deployment YAML
+    apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devopsdemo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devopsdemo
+  template:
+    metadata:
+      labels:
+        app: devopsdemo
+    spec:
+      containers:
+      - name: devopsdemo
+        image: devopsdemo:latest
+        ports:
+        - containerPort: 3000
+
+4. Reapply the Deployment
+kubectl delete deployment devopsdemo
+
+kubectl apply -f deployment.yaml
+
+5. Verify the Deployment
+kubectl get pods
+6. Expose the Deployment
+kubectl expose deployment devopsdemo --type=NodePort --port=3000
+7. Get Minikube IP and NodePort
+minikube ip
+kubectl get service devopsdemo
+
+
+8. Access the Application
+minikube service devopsdemo --url
+
+
+* status of your Kubernetes cluster
+
+
+
